@@ -1,4 +1,5 @@
 plugins {
+    application
     kotlin("jvm") version "2.3.0"
 }
 
@@ -16,6 +17,10 @@ dependencies {
 
 kotlin {
     jvmToolchain(18)
+}
+
+application {
+    mainClass = "org.example.MainKt"
 }
 
 tasks.test {
