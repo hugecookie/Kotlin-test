@@ -2,20 +2,20 @@ package org.example.repository
 
 import org.example.model.Product
 
-class InMemoryProductRepository {
-    private val products = mutableListOf<Product>()
+class InMemoryProductRepository : ProductRepository {
+    private val products = linkedMapOf<Int, Product>()
 
-    fun save(product: Product): Product {
-        val index = products.indexOfFirst { it.id == product.id }
-        if (index >= 0) {
-            products[index] = product
-        } else {
-            products.add(product)
-        }
+    override fun save(product: Product): Product {
+        products[product.id] = product
         return product
     }
 
-    fun findById(id: Int): Product? = products.find { it.id == id }
+    override fun saveAll(products: List<Product>): List<Product> {
+        products.forEach { product -> this.products[product.id] = product }
+        return products
+    }
 
-    fun findAll(): List<Product> = products.toList()
+    override fun findById(id: Int): Product? = products[id]
+
+    override fun findAll(): List<Product> = products.values.toList()
 }

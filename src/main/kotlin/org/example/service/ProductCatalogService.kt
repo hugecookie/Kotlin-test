@@ -2,10 +2,10 @@ package org.example.service
 
 import org.example.model.Product
 import org.example.model.ProductCategory
-import org.example.repository.InMemoryProductRepository
+import org.example.repository.ProductRepository
 
 class ProductCatalogService(
-    private val productRepository: InMemoryProductRepository
+    private val productRepository: ProductRepository
 ) {
     fun registerProduct(product: Product): Product {
         require(productRepository.findById(product.id) == null) { "이미 존재하는 제품입니다: ${product.id}" }
