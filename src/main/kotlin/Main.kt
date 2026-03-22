@@ -1,5 +1,6 @@
 package org.example
 
+import org.example.batch.ProductBulkCommand
 import org.example.model.Product
 import org.example.model.ProductCategory
 import org.example.model.Space
@@ -15,6 +16,7 @@ import org.example.service.AdminCatalogService
 import org.example.service.BomService
 import org.example.service.OrderService
 import org.example.service.ProductCatalogService
+import org.example.service.ProductBulkService
 import org.example.service.SpacePlanningService
 import org.example.service.UserService
 
@@ -27,6 +29,7 @@ fun main() {
 
     val userService = UserService(userRepository)
     val productCatalogService = ProductCatalogService(productRepository)
+    val productBulkService = ProductBulkService(productRepository)
     val spacePlanningService = SpacePlanningService(layoutPlanRepository, productCatalogService)
     val bomService = BomService(spacePlanningService)
     val orderService = OrderService(orderRepository, spacePlanningService, bomService)
@@ -76,6 +79,28 @@ fun main() {
         )
     )
     println(productCatalogService.getAllProducts())
+
+    println("\n=== BULK PRODUCT LOAD ===")
+    val bulkResult = productBulkService.upsertInChunks(
+        commands = generateSequence(0) { it + 1 }
+            .take(5_000)
+            .map { offset ->
+                ProductBulkCommand(
+                    product = Product(
+                        id = 20_000 + offset,
+                        name = "Bulk Cabinet $offset",
+                        category = ProductCategory.STORAGE_CABINET,
+                        widthMm = 600,
+                        depthMm = 600,
+                        heightMm = 2100,
+                        price = 210000 + offset
+                    )
+                )
+            },
+        chunkSize = 1_000
+    )
+    println(bulkResult)
+    println("Current catalog size: ${productCatalogService.getAllProducts().size}")
 
     println("\n=== ADMIN TEMPLATE ===")
     adminCatalogService.registerTemplate(
